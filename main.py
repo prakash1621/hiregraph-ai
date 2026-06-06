@@ -6,8 +6,8 @@ sys.path.append(str(Path(__file__).parent / "src"))
 from hiregraph.graph import graph
 
 state = {
-    "resume_text": "sample resume",
-    "jd_text": "sample jd",
+    "resume_text": "Python developer with 10 years experience",
+    "jd_text": "Senior Data Engineer",
     "seniority": "",
     "scorecard": {},
     "recommendation": "",

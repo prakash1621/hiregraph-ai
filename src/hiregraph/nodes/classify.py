@@ -9,7 +9,7 @@ def classify_candidate(state):
     else:
         level = "junior"
 
-    print(f"Detected: {level}")
+    print(f"Candidate Level: {level}")
 
     state["seniority"] = level
 
