@@ -1,3 +1,3 @@
 def ingest(state):
-    print("Loading resume and job description")
+    print("Loading resume and JD")
     return state
