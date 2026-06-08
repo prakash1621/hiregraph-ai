@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HireGraph - Smart Hiring Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #1e293b;
+            border-bottom: 1px solid #334155;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: #60a5fa;
+        }
+
+        .header .badge {
+            background: #1d4ed8;
+            color: #fff;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+
+        .card h2 {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 0.5rem;
+            color: #e2e8f0;
+            padding: 1rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #60a5fa;
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-primary:disabled {
+            background: #475569;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #334155;
+            color: #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .sample-select {
+            background: #0f172a;
+            border: 1px solid #475569;
+            color: #e2e8f0;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results.visible {
+            display: block;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .recommendation {
+            padding: 0.5rem 1.25rem;
+            border-radius: 2rem;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+        }
+
+        .recommendation.advance {
+            background: #065f46;
+            color: #6ee7b7;
+        }
+
+        .recommendation.reject {
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        .recommendation.borderline {
+            background: #78350f;
+            color: #fcd34d;
+        }
+
+        .score-big {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #60a5fa;
+        }
+
+        .score-label {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .scores-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .score-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .score-card .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #60a5fa;
+        }
+
+        .score-card .label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+            text-transform: capitalize;
+        }
+
+        .email-draft {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            white-space: pre-wrap;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .audit-trail {
+            margin-top: 1.5rem;
+        }
+
+        .audit-trail table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        .audit-trail th {
+            text-align: left;
+            padding: 0.5rem;
+            border-bottom: 1px solid #334155;
+            color: #64748b;
+        }
+
+        .audit-trail td {
+            padding: 0.5rem;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .audit-trail .verdict-success {
+            color: #6ee7b7;
+        }
+
+        .audit-trail .verdict-error {
+            color: #fca5a5;
+        }
+
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #334155;
+            border-top-color: #60a5fa;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .spinner.active {
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .status-bar {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-left: 1rem;
+        }
+
+        .meta-info {
+            display: flex;
+            gap: 2rem;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .scores-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>HireGraph</h1>
+        <span class="badge">LangGraph-powered</span>
+    </div>
+
+    <div class="container">
+        <!-- Input Section -->
+        <div class="grid">
+            <div class="card">
+                <h2>Resume</h2>
+                <div style="margin-bottom: 0.75rem;">
+                    <select id="resumeSelect" class="sample-select" onchange="loadSampleResume()">
+                        <option value="">-- Load sample resume --</option>
+                    </select>
+                </div>
+                <textarea id="resumeText" placeholder="Paste resume text here, or select a sample above..."></textarea>
+            </div>
+            <div class="card">
+                <h2>Job Description</h2>
+                <div style="margin-bottom: 0.75rem;">
+                    <select id="jdSelect" class="sample-select" onchange="loadSampleJd()">
+                        <option value="">-- Load sample JD --</option>
+                    </select>
+                </div>
+                <textarea id="jdText" placeholder="Paste job description here, or select a sample above..."></textarea>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+            <button id="evaluateBtn" class="btn btn-primary" onclick="runEvaluation()">
+                Evaluate Candidate
+            </button>
+            <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+            <div id="spinner" class="spinner"></div>
+            <span id="statusBar" class="status-bar"></span>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="results">
+            <div class="card">
+                <div class="result-header">
+                    <div id="recommendationBadge" class="recommendation"></div>
+                    <div>
+                        <div id="overallScore" class="score-big"></div>
+                        <div class="score-label">Overall Score</div>
+                    </div>
+                    <div style="margin-left: auto;">
+                        <div id="seniorityLevel" style="font-size: 1rem; color: #94a3b8;"></div>
+                        <div class="score-label">Seniority Level</div>
+                    </div>
+                </div>
+
+                <div id="decisionReasoning" style="color: #94a3b8; margin-bottom: 1rem; font-size: 0.9rem;"></div>
+
+                <div id="scoresGrid" class="scores-grid"></div>
+
+                <div class="meta-info">
+                    <span id="durationInfo"></span>
+                    <span id="llmCalls"></span>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 1.5rem;">
+                <h2>Email Draft</h2>
+                <div id="emailDraft" class="email-draft"></div>
+            </div>
+
+            <div class="card audit-trail" style="margin-top: 1.5rem;">
+                <h2>Audit Trail</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Node</th>
+                            <th>Verdict</th>
+                            <th>Duration</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Use the server origin, or fallback to localhost:8000 if opened as a file
+        const API_BASE = (window.location.origin && window.location.origin !== 'null')
+            ? window.location.origin
+            : 'http://localhost:8000';
+        let sampleData = { resumes: [], jds: [] };
+
+        // Load sample data on page load
+        async function init() {
+            try {
+                const resp = await fetch(`${API_BASE}/sample-data`);
+                if (resp.ok) {
+                    sampleData = await resp.json();
+                    populateSelects();
+                    document.getElementById('statusBar').textContent = `Connected to ${API_BASE}`;
+                    setTimeout(() => { document.getElementById('statusBar').textContent = ''; }, 3000);
+                } else {
+                    document.getElementById('statusBar').textContent = `Warning: API returned ${resp.status}. Make sure server is running.`;
+                }
+            } catch (e) {
+                document.getElementById('statusBar').textContent = `Cannot connect to API at ${API_BASE}. Run: python -m uvicorn api.server:app --port 8000`;
+                document.getElementById('statusBar').style.color = '#fca5a5';
+                console.error('Could not load sample data:', e);
+            }
+        }
+
+        function populateSelects() {
+            const resumeSelect = document.getElementById('resumeSelect');
+            const jdSelect = document.getElementById('jdSelect');
+
+            sampleData.resumes.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r.name;
+                opt.textContent = r.name.replace(/_/g, ' ');
+                resumeSelect.appendChild(opt);
+            });
+
+            sampleData.jds.forEach(j => {
+                const opt = document.createElement('option');
+                opt.value = j.name;
+                opt.textContent = j.name.replace(/_/g, ' ');
+                jdSelect.appendChild(opt);
+            });
+        }
+
+        function loadSampleResume() {
+            const name = document.getElementById('resumeSelect').value;
+            const resume = sampleData.resumes.find(r => r.name === name);
+            if (resume) {
+                document.getElementById('resumeText').value = resume.content;
+            }
+        }
+
+        function loadSampleJd() {
+            const name = document.getElementById('jdSelect').value;
+            const jd = sampleData.jds.find(j => j.name === name);
+            if (jd) {
+                document.getElementById('jdText').value = jd.content;
+            }
+        }
+
+        async function runEvaluation() {
+            const resumeText = document.getElementById('resumeText').value.trim();
+            const jdText = document.getElementById('jdText').value.trim();
+
+            if (!resumeText || !jdText) {
+                alert('Please provide both a resume and a job description.\n\nResume length: ' + resumeText.length + '\nJD length: ' + jdText.length);
+                return;
+            }
+
+            // Show loading
+            document.getElementById('evaluateBtn').disabled = true;
+            document.getElementById('evaluateBtn').textContent = 'Processing...';
+            document.getElementById('spinner').classList.add('active');
+            document.getElementById('statusBar').textContent = 'Evaluating candidate... (this takes 15-30 seconds)';
+            document.getElementById('statusBar').style.color = '#60a5fa';
+            document.getElementById('results').classList.remove('visible');
+
+            try {
+                const resp = await fetch(`${API_BASE}/evaluate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        resume_text: resumeText,
+                        jd_text: jdText,
+                    }),
+                });
+
+                if (!resp.ok) {
+                    let errMsg = `Server returned ${resp.status}`;
+                    try {
+                        const err = await resp.json();
+                        errMsg = err.detail || errMsg;
+                    } catch (e) {}
+                    throw new Error(errMsg);
+                }
+
+                const data = await resp.json();
+                displayResults(data);
+                document.getElementById('statusBar').textContent = 'Done!';
+                document.getElementById('statusBar').style.color = '#6ee7b7';
+            } catch (e) {
+                document.getElementById('statusBar').textContent = `Error: ${e.message}`;
+                document.getElementById('statusBar').style.color = '#fca5a5';
+                alert(`Error: ${e.message}\n\nMake sure the server is running at ${API_BASE}`);
+            } finally {
+                document.getElementById('evaluateBtn').disabled = false;
+                document.getElementById('evaluateBtn').textContent = 'Evaluate Candidate';
+                document.getElementById('spinner').classList.remove('active');
+            }
+        }
+
+        // Keep old name as alias in case cached HTML calls it
+        async function evaluate() { return runEvaluation(); }
+
+        function displayResults(data) {
+            // Recommendation badge
+            const badge = document.getElementById('recommendationBadge');
+            badge.textContent = data.recommendation;
+            badge.className = `recommendation ${data.recommendation}`;
+
+            // Overall score
+            document.getElementById('overallScore').textContent = `${data.overall_score.toFixed(1)}/100`;
+
+            // Seniority
+            document.getElementById('seniorityLevel').textContent = data.seniority_level.toUpperCase();
+
+            // Reasoning
+            document.getElementById('decisionReasoning').textContent = data.decision_reasoning;
+
+            // Dimension scores
+            const scoresGrid = document.getElementById('scoresGrid');
+            scoresGrid.innerHTML = '';
+            const dimensions = data.scorecard?.dimension_scores || {};
+            for (const [dim, score] of Object.entries(dimensions)) {
+                scoresGrid.innerHTML += `
+                    <div class="score-card">
+                        <div class="value">${score}</div>
+                        <div class="label">${dim.replace(/_/g, ' ')}</div>
+                    </div>
+                `;
+            }
+
+            // Meta
+            document.getElementById('durationInfo').textContent = `Duration: ${(data.duration_ms / 1000).toFixed(1)}s`;
+            document.getElementById('llmCalls').textContent = `LLM calls: ${data.audit_trail.length}`;
+
+            // Email draft
+            document.getElementById('emailDraft').textContent = data.email_draft;
+
+            // Audit trail
+            const auditBody = document.getElementById('auditBody');
+            auditBody.innerHTML = '';
+            for (const entry of data.audit_trail) {
+                const verdictClass = entry.verdict === 'success' ? 'verdict-success' : 'verdict-error';
+                auditBody.innerHTML += `
+                    <tr>
+                        <td>${entry.node}</td>
+                        <td class="${verdictClass}">${entry.verdict}</td>
+                        <td>${entry.duration_ms.toFixed(1)}ms</td>
+                    </tr>
+                `;
+            }
+
+            // Show results
+            document.getElementById('results').classList.add('visible');
+        }
+
+        function clearAll() {
+            document.getElementById('resumeText').value = '';
+            document.getElementById('jdText').value = '';
+            document.getElementById('resumeSelect').value = '';
+            document.getElementById('jdSelect').value = '';
+            document.getElementById('results').classList.remove('visible');
+        }
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>

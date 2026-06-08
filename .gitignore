@@ -1,0 +1,32 @@
+.env
+
+__pycache__/
+*.pyc
+.venv/
+
+
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ipynb_checkpoints/
+
+# build / packaging
+build/
+dist/
+*.egg-info/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# editor
+.idea/
+.vscode/
+
+# project output
+outbox/
+*.log
+
+# keep graph_out committed (it's a deliverable)
+!graph_out/

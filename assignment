@@ -1,0 +1,86 @@
+Assignment 2- Hire Graph
+
+𝗔𝘀𝘀𝗶𝗴𝗻𝗺𝗲𝗻𝘁 𝟮: 𝗛𝗶𝗿𝗲𝗚𝗿𝗮𝗽𝗵, 𝗔 𝗦𝗺𝗮𝗿𝘁 𝗛𝗶𝗿𝗶𝗻𝗴 𝗔𝘀𝘀𝗶𝘀𝘁𝗮𝗻𝘁 𝗕𝘂𝗶𝗹𝘁 𝗶𝗻 𝗟𝗮𝗻𝗴𝗚𝗿𝗮𝗽𝗵
+
+Link- https://github.com/fnusatvik07/agent-builder-assignment2
+
+Description
+This is your 𝘀𝗲𝗰𝗼𝗻𝗱 𝗲𝗻𝗱 𝘁𝗼 𝗲𝗻𝗱 𝗮𝘀𝘀𝗶𝗴𝗻𝗺𝗲𝗻𝘁 and the biggest one so far. You will design and ship a real, working 𝗟𝗮𝗻𝗴𝗚𝗿𝗮𝗽𝗵 𝗮𝗽𝗽𝗹𝗶𝗰𝗮𝘁𝗶𝗼𝗻 that brings together everything from the workflow patterns class. The whole point of this assignment is to build a complete application using LangGraph, so the entire graph must be built in LangGraph. No LangChain expression language alone, no asyncio.gather, no custom orchestrator.
+
+𝗧𝗵𝗲 𝗕𝘂𝘀𝗶𝗻𝗲𝘀𝘀 𝗣𝗿𝗼𝗯𝗹𝗲𝗺
+
+Recruiting teams drown in resumes. A senior recruiter at a 200 person company can get 400 applications for one backend role, of which maybe 40 are worth a closer look. They want an assistant that reads the resume and the job description, decides whether the candidate is junior, mid, senior, or executive level, scores them across independent dimensions (skills, experience, education, public signals like GitHub), produces an explainable scorecard, drafts a personalized email back to the candidate, and logs the decision cleanly. Your job is to build this assistant as a LangGraph application.
+
+𝗪𝗵𝗮𝘁 𝗬𝗼𝘂 𝗪𝗶𝗹𝗹 𝗕𝘂𝗶𝗹𝗱
+
+A Python application called 𝗛𝗶𝗿𝗲𝗚𝗿𝗮𝗽𝗵 (you may rename it) that loads a resume and a JD, runs them through a LangGraph graph you design, and returns a Decision object containing a structured scorecard with sub-scores per dimension, a recommendation of advance / reject / borderline, a polished email draft to the candidate, and an audit trail of every node executed with verdict and timing. You deliver this as a GitHub repo with a CLI, a small web UI, a Jupyter notebook walkthrough, and a short in-class presentation.
+
+𝗥𝗲𝗾𝘂𝗶𝗿𝗲𝗱 𝗥𝘂𝗻𝘁𝗶𝗺𝗲 𝗕𝗲𝗵𝗮𝘃𝗶𝗼𝗿
+
+When the project is run on a fresh clone with an LLM key set, it must compile the graph, write out a PNG of the graph, run three scenarios end to end (a strong candidate, a weak candidate, and a borderline candidate), and print a scoreboard summary of all three results.
+
+𝗥𝗲𝗾𝘂𝗶𝗿𝗲𝗱 𝗣𝗮𝘁𝘁𝗲𝗿𝗻𝘀 (𝗔𝗹𝗹 𝗠𝗮𝗻𝗱𝗮𝘁𝗼𝗿𝘆)
+
+Your graph must demonstrably implement every one of these. The grader will ask you to point at the exact node, line, or edge during the demo.
+
+▸ TypedDict state holding raw data (raw resume text, raw JD text, classification, scorecard, draft email, audit trail) 
+
+▸ Node functions with Command(goto=...) self-routing, at least three of them
+
+ ▸ RetryPolicy on at least two external-service nodes, using retry_on= to narrow the blast radius ▸ LLM-recoverable loopback: a tool or parser error becomes data in state and routes back to an LLM node that self-corrects 
+
+▸ Saga / compensation: if a downstream step fails after retries, route to a compensation node, log it, and reach a clean terminal state 
+
+▸ Structured output via with_structured_output with Literal or Pydantic 
+
+▸ Tool calling: the research agent binds and uses tools 
+
+▸ Short-term memory / MessagesState so multi-turn LLM exchanges keep history 
+
+▸ Prompt chaining: a sub-pipeline of sequential LLM calls (parse resume, normalize skills, extract years of experience) 
+
+▸ Parallelization with a reducer: at least three scoring dimensions run in parallel and merge via a reducer 
+
+▸ Routing: an LLM classifier decides seniority and routes to a seniority-specific scoring sub-graph 
+
+▸ Orchestrator and worker with Send: orchestrator plans one worker per required skill in the JD and fans them out 
+
+▸ Evaluator and optimizer: a critic LLM grades the email draft and the loop retries up to N times ▸ Agent with tools and ToolNode: a research agent calls web search, GitHub lookup, or similar to enrich the profile
+
+𝗥𝗲𝗰𝗼𝗺𝗺𝗲𝗻𝗱𝗲𝗱 𝗙𝗿𝗲𝗲 𝗔𝗣𝗜𝘀
+
+You are not required to spend money.
+
+ LLM: gpt-4o-mini or claude-3-5-haiku (a full run costs a few cents). 
+
+Web search: Tavily free tier. 
+
+GitHub profile: GitHub REST API (public reads work without auth). 
+
+Email send: Mailtrap or Ethereal Email (sandbox, never reaches the candidate). 
+
+Observability: LangSmith free tier (recommended, share trace links). 
+
+Resume parsing: PyMuPDF. 
+
+If you skip an API, replace its node with a deterministic mock and document the trade-off in one sentence. A mocks flag should toggle mocks vs real services. No points lost for mocks, bonus points for cleanly wiring real APIs.
+
+𝗖𝗼𝗻𝘀𝘁𝗿𝗮𝗶𝗻𝘁𝘀
+
+LangGraph is required. Python 3.11+ with uv. No prompts in state, state holds raw data only and prompts are built inside nodes. Every routing node needs a type-annotated Command[Literal[...]] return so the graph visualizes correctly. At least one test per category: a state test, a node test with the LLM mocked, and an end-to-end test.
+
+𝗦𝗮𝗺𝗽𝗹𝗲 𝗗𝗮𝘁𝗮
+
+The repo ships 2 JDs and 3 resumes under sample_data/ (a strong senior backend candidate, a borderline mid-level, and a frontend-heavy mismatch), plus an expected_outcomes.md truth table to self-grade against. Your demo run must use at least those three resumes against at least one JD.
+
+𝗦𝘂𝗴𝗴𝗲𝘀𝘁𝗲𝗱 𝗧𝗶𝗺𝗲𝗹𝗶𝗻𝗲
+
+Day 1: read the brief twice, sketch state and graph on paper. Day 2: state and nodes for ingest, classify, parallel scoring, compile with stubs. Day 3: orchestrator and worker per skill, reducer on completed_scores. Day 4: evaluator loop on the email draft. Day 5: saga path and tests. Day 6: UI, notebook, slides. Day 7: polish, README, push, submit.
+
+𝗚𝗿𝗮𝗱𝗶𝗻𝗴
+
+100 points total. 50 points are pattern coverage and LangGraph correctness. The rest is code quality, tests, UI, docs, and the presentation. Full breakdown is in RUBRIC.md in the repo.
+
+𝗦𝘂𝗯𝗺𝗶𝘀𝘀𝗶𝗼𝗻
+
+Push your repo (public, or private and shared with the instructor). Tag the submission commit v1.0. Open an issue titled "Submission: <your name>" with a link to the tagged commit, a LangSmith trace link of one full run, and one paragraph on what you learned and what surprised you. Be ready to demo for 10 minutes in the next class.
